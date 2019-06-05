@@ -78,7 +78,7 @@ public class NTupleBanditEA implements EvoAlg {
 
     SolutionEvaluator evaluator;
 
-    int reportFrequency = 10000;
+    int reportFrequency = 1;//10000;
 
     // want to reset for comparability tests involving multiple runs
     // but turn this off to accumulate knowledge from run to run
