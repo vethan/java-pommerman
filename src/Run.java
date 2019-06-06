@@ -85,8 +85,12 @@ public class Run {
                         playerStr[i-3] = "DoNothing";
                         break;
                     case 1:
-                        p = new RandomPlayer(seed, playerID++);
-                        playerStr[i-3] = "Random";
+                        //p = new RandomPlayer(seed, playerID++);
+                        //playerStr[i-3] = "Random";
+                        mctsParams.heuristic_method = mctsParams.CUSTOM_HEURISTIC;
+                        mctsParams.rollout_depth = 8;
+                        p = new MCTSPlayer(seed, playerID++, mctsParams);
+                        playerStr[i-3] = "MCTS-Vanilla";
                         break;
                     case 2:
                         p = new OSLAPlayer(seed, playerID++);
@@ -102,17 +106,18 @@ public class Run {
                         playerStr[i-3] = "RHEA-Custom";
                         break;
                     case 5:
-                        rheaParams.heurisic_type = Constants.CUSTOM_HEURISTIC;//Constants.ADVANCED_HEURISTIC;
+                        rheaParams.heurisic_type = Constants.ADVANCED_HEURISTIC;
                         p = new RHEAPlayer(seed, playerID++, rheaParams);
                         playerStr[i-3] = "RHEA-Advanced";
                         break;
                     case 6:
                         mctsParams.heuristic_method = mctsParams.CUSTOM_HEURISTIC;
                         p = new MCTSPlayer(seed, playerID++, mctsParams);
-                        playerStr[i-3] = "MCTS-Custom";
+                        playerStr[i-3] = "MCTS-NTBEA";
                         break;
                     case 7:
-                        mctsParams.heuristic_method = mctsParams.CUSTOM_HEURISTIC;//mctsParams.ADVANCED_HEURISTIC;
+                        mctsParams.heuristic_method = mctsParams.ADVANCED_HEURISTIC;
+                        mctsParams.rollout_depth = 8;
                         p = new MCTSPlayer(seed, playerID++, mctsParams);
                         playerStr[i-3] = "MCTS-ADVANCED";
                         break;
