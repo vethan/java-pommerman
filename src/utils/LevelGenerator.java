@@ -183,6 +183,28 @@ public class LevelGenerator {
             }
         }
 
+        int TELEPORT = Types.TILETYPE.TELEPORT.getKey();
+        int counterPortal = 0;
+        double selectPortal = Math.random();
+        if (selectPortal<=0.5){
+            board[2][3] = TELEPORT;
+            board[7][8] = TELEPORT;
+        }else{
+            board[8][2] = TELEPORT;
+            board[2][8] = TELEPORT;}
+
+        /*
+        Random p = new Random(seed);
+        for(int x = 0; x < size; x += 1) {
+            for(int y = 0; y < size; y += 1) {
+                if(available_coordinates.contains((new Vector2d(x,y))) && counterPortal<2 && p.nextDouble() < 0.9) {
+                    board[x][y] = TELEPORT;
+                    firstPortal = new Vector2d(x,y);
+                    counterPortal ++;
+                }
+            }
+        }*/
+
         //Finally, set the positions to the agent objects.
         for (int i = 0; i < agents.length; i++) {
             agents[i].setPosition(agent_positions.get(i));

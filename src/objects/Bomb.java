@@ -13,6 +13,7 @@ public class Bomb extends GameObject {
     private int blastStrength;
     private Vector2d velocity;
     private int playerIdx;
+    int explosionType=2;
 
     public Bomb(int blastStrength, int life, int pIdx) {
         super(Types.TILETYPE.BOMB);
@@ -20,6 +21,10 @@ public class Bomb extends GameObject {
         this.blastStrength = blastStrength;
         this.playerIdx = pIdx;
         velocity = new Vector2d();
+        double x = Math.random();
+        if (x<=0.5){explosionType=0;}
+        else if (0.5<x & x<=0.75){explosionType=1;}
+        else if (0.75<x){explosionType=2;}
     }
 
     public Bomb() {
@@ -55,27 +60,111 @@ public class Bomb extends GameObject {
             tryToAddFlame(position.x, position.y, board, powerups, flames);
             boolean advanceP = true;
             boolean advanceM = true;
-            for (int i = 1; i < blastStrength; i++) {
-                if (advanceP) {
-                    int x1 = position.x + i;
-                    advanceP = tryToAddFlame(x1, position.y, board, powerups, flames);
+            boolean advanceO = true;
+            boolean advanceQ = true;
+           // int explosionType = 2;
+            switch (explosionType) {
+                case 0:
+                for (int i = 1; i < blastStrength; i++) {
+                    if (advanceP) {
+                        int x1 = position.x + i;
+                        advanceP = tryToAddFlame(x1, position.y, board, powerups, flames);
+                    }
+                    if (advanceM) {
+                        int x2 = position.x - i;
+                        advanceM = tryToAddFlame(x2, position.y, board, powerups, flames);
+                    }
                 }
-                if (advanceM) {
-                    int x2 = position.x - i;
-                    advanceM = tryToAddFlame(x2, position.y, board, powerups, flames);
+                advanceM = true;
+                advanceP = true;
+                for (int i = 1; i < blastStrength; i++) {
+                    if (advanceP) {
+                        int y1 = position.y + i;
+                        advanceP = tryToAddFlame(position.x, y1, board, powerups, flames);
+                    }
+                    if (advanceM) {
+                        int y2 = position.y - i;
+                        advanceM = tryToAddFlame(position.x, y2, board, powerups, flames);
+                    }
                 }
-            }
-            advanceM = true;
-            advanceP = true;
-            for (int i = 1; i < blastStrength; i++) {
-                if (advanceP) {
-                    int y1 = position.y + i;
-                    advanceP = tryToAddFlame(position.x, y1, board, powerups, flames);
-                }
-                if (advanceM) {
-                    int y2 = position.y - i;
-                    advanceM = tryToAddFlame(position.x, y2, board, powerups, flames);
-                }
+                break;
+                case 1:
+                    for (int i = 1; i < blastStrength; i++) {
+                        if (advanceP) {
+                            int x1 = position.x + i;
+                            int x2 = position.y + i ;
+                            advanceP = tryToAddFlame(x1, x2, board, powerups, flames);
+                        }
+                        if (advanceM) {
+                            int x1 = position.x - i ;
+                            int x2 = position.y + i ;
+                            advanceM = tryToAddFlame(x1, x2, board, powerups, flames);
+                        }
+                    }
+                    advanceM = true;
+                    advanceP = true;
+                    for (int i = 1; i < blastStrength; i++) {
+                        if (advanceP) {
+                            int x1 = position.x + i;
+                            int x2 = position.y - i ;
+                            advanceP = tryToAddFlame(x1, x2, board, powerups, flames);
+                        }
+                        if (advanceM) {
+                            int x1 = position.x - i ;
+                            int x2 = position.y - i ;
+                            advanceM = tryToAddFlame(x1, x2, board, powerups, flames);
+                        }
+                    }
+                    break;
+                case 2:
+
+                    for (int i = 1; i < blastStrength; i++) {
+                        if (advanceP) {
+                            int x1 = position.x + i - 1;
+                            int x2 = position.y + i -1;
+                            advanceP = tryToAddFlame(x1, x2, board, powerups, flames);
+                        }
+                        if (advanceM) {
+                            int x1 = position.x - i + 1;
+                            int x2 = position.y + i -1 ;
+                            advanceM = tryToAddFlame(x1, x2, board, powerups, flames);
+                        }
+                        if (advanceO) {
+                            int x1 = position.x + i;
+                            advanceO = tryToAddFlame(x1, position.y, board, powerups, flames);
+                        }
+                        if (advanceQ) {
+                            int x2 = position.x - i;
+                            advanceQ = tryToAddFlame(x2, position.y, board, powerups, flames);
+                        }
+                    }
+                    advanceM = true;
+                    advanceP = true;
+                    advanceO = true;
+                    advanceQ = true;
+
+                    for (int i = 1; i < blastStrength; i++) {
+                        if (advanceP) {
+                            int x1 = position.x + i-1;
+                            int x2 = position.y - i +1;
+                            advanceP = tryToAddFlame(x1, x2, board, powerups, flames);
+                        }
+                        if (advanceM) {
+                            int x1 = position.x - i +1;
+                            int x2 = position.y - i +1;
+                            advanceM = tryToAddFlame(x1, x2, board, powerups, flames);
+                        }
+                        if (advanceO) {
+                            int y1 = position.y + i;
+                            advanceO = tryToAddFlame(position.x, y1, board, powerups, flames);
+                        }
+                        if (advanceQ) {
+                            int y2 = position.y - i;
+                            advanceQ = tryToAddFlame(position.x, y2, board, powerups, flames);
+                        }
+                    }
+                    break;
+
             }
             return flames;
         }
