@@ -27,7 +27,7 @@ public class Run {
         System.out.println("\t\t 4 RHEA 200 itereations, shift buffer, pop size 1, random init, length: 12, custom heuristic");
         System.out.println("\t\t 5 RHEA 200 itereations, shift buffer, pop size 1, random init, length: 12, advanced heuristic");
         System.out.println("\t\t 6 MCTS 200 iterations, length: 12, custom heuristic");
-        System.out.println("\t\t 7 MCTS 200 iterations, length: 12, custom heuristic");
+        System.out.println("\t\t 7 MCTS 200 iterations, length: 12, advanced heuristic");
     }
 
     public static void main(String[] args) {
