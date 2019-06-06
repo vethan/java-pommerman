@@ -39,6 +39,8 @@ public class ForwardModel {
     // Current bombs in the game. They explode!
     private ArrayList<GameObject> bombs;
 
+    private ArrayList<Vector2d> portals = new ArrayList<>();
+
     // Size of the board.
     private int size;
 
@@ -52,6 +54,8 @@ public class ForwardModel {
     private int tick;
 
     private  Random random;
+    int lastTimePortal=portalTimeWindow;
+
     // Event statistics
     private EventsStatistics es;
     private boolean[] isAgentStuck;
@@ -158,6 +162,8 @@ public class ForwardModel {
         flames = new ArrayList<>();
         bombs = new ArrayList<>();
         this.random = new Random(seed);
+        portals = new ArrayList<>();
+
         boolean noBoard = false;
         if (intBoard == null) {
             noBoard = true;
@@ -197,6 +203,14 @@ public class ForwardModel {
             isAgentStuck = new boolean[]{false, false, false, false};
             es = new EventsStatistics();
         }
+
+        for(int x = 0; x < size; x += 1) {
+            for(int y = 0; y < size; y += 1) {
+                if(board[x][y].getKey()==14){
+                    portals.add(new Vector2d(y,x));
+                }
+            }
+        }
     }
 
     /**
@@ -224,6 +238,8 @@ public class ForwardModel {
      */
     ForwardModel copy(int playerIdx) {
         ForwardModel copy = new ForwardModel(size, game_mode);
+        copy.portals = new ArrayList<>(portals);
+        copy.lastTimePortal = lastTimePortal;
         copy.trueModel = false;  // This is a copy, not the true model
         reduce(copy, playerIdx);
         return copy;
@@ -281,6 +297,7 @@ public class ForwardModel {
 
         // 1. Put actions into effect
         translatePlayerActions(playerActions);
+        lastTimePortal --;
 
         if (VERBOSE_FM_DEBUG && trueModel) {
             for (GameObject o : aliveAgents) {
@@ -370,6 +387,13 @@ public class ForwardModel {
             }
         }
         flames.removeAll(deadFlames);
+
+        // 11.B Put back portals
+        for(Vector2d portalPos: portals){
+            if (board[portalPos.y][portalPos.x] == TILETYPE.PASSAGE) {
+                board[portalPos.y][portalPos.x]= TILETYPE.TELEPORT;
+            }
+        }
 
         // 12. Add flames left alive back into the board if missing. Multiple flames may share a position, and the board
         // Should contain a flame until all flames are dead.
@@ -666,6 +690,10 @@ public class ForwardModel {
         board[nextPos.y][nextPos.x] = o.getType();
     }
 
+    boolean onPortal(Vector2d pos){
+        return portals.contains(pos);
+    }
+
     /**
      * Function to insert player action effects into the game.
      * Index in actions array is the same as in aliveAgents array.
@@ -691,7 +719,23 @@ public class ForwardModel {
                 action = Types.ACTIONS.ACTION_STOP;
             }
 
-            boolean successful = setDesiredCoordinate(agent, pos.add(action.getDirection().toVec()), board);
+            Vector2d nextPosition = pos.add(action.getDirection().toVec());
+            boolean successful = setDesiredCoordinate(agent, nextPosition, board);
+            boolean steppedOnPortal = onPortal(nextPosition);
+            if(successful){
+
+                if(steppedOnPortal){
+                    if(lastTimePortal<0) {
+                        lastTimePortal = portalTimeWindow;
+                        if (portals.get(0).equals(nextPosition)) {
+                            nextPosition = portals.get(1);
+                        } else {
+                            nextPosition = portals.get(0);
+                        }
+                        agent.setDesiredCoordinate(nextPosition);
+                    }
+                }
+            }
 
             if (action == Types.ACTIONS.ACTION_BOMB) {
                 if (agent.getAmmo() > 0 && bombBlastStrength[pos.y][pos.x] == 0) {

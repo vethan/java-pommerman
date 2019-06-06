@@ -20,7 +20,7 @@ public class Types {
     public static boolean DEFAULT_REMOTE_BOMB = false;//Can agents kick bomb by default?
 
     public static int DEFAULT_VISION_RANGE = -1;    //-1 for full observability, >1 for PO.
-
+    public static int  portalTimeWindow = 20;
     //Game configuration to use in the game, which determines victory conditions.
     private static IGameConfig gameConfig = new OriginalGameConfig();
 
@@ -75,7 +75,8 @@ public class Types {
         AGENT2(12),
         AGENT3(13),
         REMOTEBOMB(14),
-      REMOTEBOMBGO(15);
+        REMOTEBOMBGO(15),
+        TELEPORT(16);
 
         private int key;
         TILETYPE(int numVal) {  this.key = numVal;  }
@@ -105,6 +106,7 @@ public class Types {
             else if (key == AGENT1.key) return ImageIO.GetInstance().getImage("img/agent1.png");
             else if (key == AGENT2.key) return ImageIO.GetInstance().getImage("img/agent2.png");
             else if (key == AGENT3.key) return ImageIO.GetInstance().getImage("img/agent3.png");
+            else if (key == TELEPORT.key) return ImageIO.GetInstance().getImage("img/portal.png");
             else return null;
         }
 
