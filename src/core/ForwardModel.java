@@ -206,7 +206,7 @@ public class ForwardModel {
 
         for(int x = 0; x < size; x += 1) {
             for(int y = 0; y < size; y += 1) {
-                if(board[x][y].getKey()==14){
+                if(board[x][y].getKey()==TILETYPE.TELEPORT.getKey()){
                     portals.add(new Vector2d(y,x));
                 }
             }

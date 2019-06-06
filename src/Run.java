@@ -86,7 +86,7 @@ public class Run {
 
                 MCTSParams mctsParams = new MCTSParams();
                 mctsParams.stop_type = mctsParams.STOP_ITERATIONS;
-                mctsParams.rollout_depth = 12;
+                mctsParams.rollout_depth = 8;
 
                 switch(agentType) {
                     case 0:
@@ -117,13 +117,13 @@ public class Run {
                         break;
                     case 6:
                         mctsParams.heuristic_method = mctsParams.CUSTOM_HEURISTIC;
-                        p = new MCTSPlayer(seed, playerID++, mctsParams);
-                        playerStr[i-3] = "MCTS-Custom";
+                        p = new MCTSPlayer(seed, playerID++, mctsParams, new RandomPlayer(seed, playerID));
+                        playerStr[i-3] = "MCTS.Custom Heuristic.Random";
                         break;
                     case 7:
-                        mctsParams.heuristic_method = mctsParams.ADVANCED_HEURISTIC;
+                        mctsParams.heuristic_method = mctsParams.CUSTOM_HEURISTIC;
                         p = new MCTSPlayer(seed, playerID++, mctsParams);
-                        playerStr[i-3] = "MCTS-ADVANCED";
+                        playerStr[i-3] = "MCTS.Custom Heuristic.SimplePlayer";
                         break;
                     case 8:
                         p = new SimpleEvoAgent(seed, playerID++);
