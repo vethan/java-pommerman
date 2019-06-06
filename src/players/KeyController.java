@@ -27,12 +27,16 @@ public class KeyController extends KeyAdapter {
             keyMap.put(KeyEvent.VK_DOWN, Types.ACTIONS.ACTION_DOWN);
             keyMap.put(KeyEvent.VK_RIGHT, Types.ACTIONS.ACTION_RIGHT);
             keyMap.put(KeyEvent.VK_SPACE, Types.ACTIONS.ACTION_BOMB);
+            keyMap.put(KeyEvent.VK_V, Types.ACTIONS.ACTION_ACTIVATE);
+
         } else {
             keyMap.put(KeyEvent.VK_A, Types.ACTIONS.ACTION_LEFT);
             keyMap.put(KeyEvent.VK_W, Types.ACTIONS.ACTION_UP);
             keyMap.put(KeyEvent.VK_S, Types.ACTIONS.ACTION_DOWN);
             keyMap.put(KeyEvent.VK_D, Types.ACTIONS.ACTION_RIGHT);
             keyMap.put(KeyEvent.VK_SHIFT, Types.ACTIONS.ACTION_BOMB);
+            keyMap.put(KeyEvent.VK_BACK_SLASH, Types.ACTIONS.ACTION_ACTIVATE);
+
         }
 
     }

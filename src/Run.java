@@ -27,7 +27,7 @@ public class Run {
         System.out.println("\t\t 4 RHEA 200 itereations, shift buffer, pop size 1, random init, length: 12, custom heuristic");
         System.out.println("\t\t 5 RHEA 200 itereations, shift buffer, pop size 1, random init, length: 12, advanced heuristic");
         System.out.println("\t\t 6 MCTS 200 iterations, length: 12, custom heuristic");
-        System.out.println("\t\t 7 MCTS 200 iterations, length: 12, custom heuristic");
+        System.out.println("\t\t 7 MCTS 200 iterations, length: 12, advanced heuristic");
     }
 
     public static void main(String[] args) {
@@ -85,12 +85,8 @@ public class Run {
                         playerStr[i-3] = "DoNothing";
                         break;
                     case 1:
-                        //p = new RandomPlayer(seed, playerID++);
-                        //playerStr[i-3] = "Random";
-                        mctsParams.heuristic_method = mctsParams.CUSTOM_HEURISTIC;
-                        mctsParams.rollout_depth = 8;
-                        p = new MCTSPlayer(seed, playerID++, mctsParams);
-                        playerStr[i-3] = "MCTS-Vanilla";
+                        p = new RandomPlayer(seed, playerID++);
+                        playerStr[i-3] = "Random";
                         break;
                     case 2:
                         p = new OSLAPlayer(seed, playerID++);
@@ -113,11 +109,10 @@ public class Run {
                     case 6:
                         mctsParams.heuristic_method = mctsParams.CUSTOM_HEURISTIC;
                         p = new MCTSPlayer(seed, playerID++, mctsParams);
-                        playerStr[i-3] = "MCTS-NTBEA";
+                        playerStr[i-3] = "MCTS-Custom";
                         break;
                     case 7:
                         mctsParams.heuristic_method = mctsParams.ADVANCED_HEURISTIC;
-                        mctsParams.rollout_depth = 8;
                         p = new MCTSPlayer(seed, playerID++, mctsParams);
                         playerStr[i-3] = "MCTS-ADVANCED";
                         break;

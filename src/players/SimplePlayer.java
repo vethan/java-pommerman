@@ -164,7 +164,7 @@ public class SimplePlayer extends Player {
         while (it.hasNext()){
             Map.Entry<Types.TILETYPE, ArrayList<Vector2d> > entry = (Map.Entry)it.next();
             // check pickup entries on the board
-            if (Types.TILETYPE.getPowerUpTypes().contains(entry.getKey())){
+            if (Types.TILETYPE.getPowerUpTypes().keySet().contains(entry.getKey())){
                 // no need to store just get closest
                 for (Vector2d coords: entry.getValue()){
                     if (dist.get(coords) < distance){
@@ -184,6 +184,9 @@ public class SimplePlayer extends Player {
             }
             return directionToAction(getDirection(myPosition, previousNode));
         }
+
+
+
 
         // 6) Maybe lay a bomb if we are within a space of a wooden wall.
         it = items.entrySet().iterator();
@@ -243,6 +246,9 @@ public class SimplePlayer extends Player {
         if (validDirections.size() > 0){
             int actionIdx = random.nextInt(validDirections.size());
             return directionToAction(validDirections.get(actionIdx));
+        }
+        if(gs.hasRemote() &&  gs.canTriggerBomb() ) {
+            return  Types.ACTIONS.ACTION_ACTIVATE;
         }
 
         return Types.ACTIONS.ACTION_STOP;
