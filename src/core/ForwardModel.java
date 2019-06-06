@@ -4,6 +4,7 @@ import objects.Avatar;
 import objects.Bomb;
 import objects.Flame;
 import objects.GameObject;
+import sun.management.Agent;
 import utils.EventsStatistics;
 import utils.LevelGenerator;
 import utils.Types;
@@ -116,7 +117,7 @@ public class ForwardModel {
             for (int y = 0; y < size; y++) {
                 Types.TILETYPE type = utils.Types.TILETYPE.values()[intBoard[y][x]];
                 if (type == Types.TILETYPE.BOMB){
-                    addBomb(x, y, bombBlastStrength[y][x], bombLife[y][x], -1, true);
+                    addBomb(x, y, bombBlastStrength[y][x], bombLife[y][x], -1, true,false);
                 } else if (type == Types.TILETYPE.FLAMES){
                     addFlame(x, y, FLAME_LIFE);
                 } else if (agentTypes.contains(type)){
@@ -125,7 +126,7 @@ public class ForwardModel {
 
                 // Check last if there is a bomb that should be added to the bomb array, but not to the board
                 if (bombBlastStrength[y][x] > 0 && type != Types.TILETYPE.BOMB) {
-                    addBomb(x, y, bombBlastStrength[y][x], bombLife[y][x], -1, false);
+                    addBomb(x, y, bombBlastStrength[y][x], bombLife[y][x], -1, false, false);
                 }
             }
         }
@@ -586,7 +587,7 @@ public class ForwardModel {
                 }
                 o.setPosition(nextPos.copy());
 
-                HashSet<Types.TILETYPE> powerUpTypes = Types.TILETYPE.getPowerUpTypes();
+                Set<Types.TILETYPE> powerUpTypes = Types.TILETYPE.getPowerUpTypes().keySet();
                 HashSet<Types.TILETYPE> agentTypes = TILETYPE.getAgentTypes();
 
                 // Set up sprites that cannot be replaced with a passage when current sprite moves from its square.
@@ -655,7 +656,7 @@ public class ForwardModel {
                 if (agent.getAmmo() > 0 && bombBlastStrength[pos.y][pos.x] == 0) {
                     // Check if a bomb is not already there
                     agent.reduceAmmo();
-                    addBomb(pos.x, pos.y, agent.getBlastStrength(), BOMB_LIFE, i, true);
+                    addBomb(pos.x, pos.y, agent.getBlastStrength(), BOMB_LIFE, i, true, agent.hasRemoteBomb());
                     successful = true;
                     if(trueModel && LOGGING_STATISTICS) {
                         int agentID = (agent.getPlayerID() - 10);
@@ -677,6 +678,22 @@ public class ForwardModel {
                 }
             }
 
+            if(action == ACTIONS.ACTION_ACTIVATE) {
+                successful = false;
+                for (GameObject bomb1 : bombs) {
+                    Bomb bomb = (Bomb) bomb1;
+                    if (bomb.getPlayerIdx() == i && bomb.getLife() > 0 && bomb.isRemote()) {
+                        bomb.triggerRemotely();
+                        successful = true;
+                        break;
+                    }
+                    if(trueModel && LOGGING_STATISTICS) {
+                        int agentID = (agent.getPlayerID() - 10);
+                        String eventString = tick + " | [" + agentID + "] failed to activate remote bomb\n";
+                        es.events.add(eventString);
+                    }
+                }
+            }
             if (successful && action != Types.ACTIONS.ACTION_STOP && trueModel) {
                 if (VERBOSE_FM_DEBUG) {
                     System.out.println(agent.getType() + " playing action " + action + " " + action.getDirection()
@@ -696,6 +713,7 @@ public class ForwardModel {
         if (x >= 0 && x < size && y >= 0 && y < size) {
             if (board[y][x] == Types.TILETYPE.EXTRABOMB) {
                 p.addAmmo();
+                p.addMaxAmmo();
                 if(trueModel && LOGGING_STATISTICS) {
                     String eventString = tick + " | [" + (p.getPlayerID() - 10) + "] picked up AMMO at ("
                             +  x + ", " + y + ")\n";
@@ -719,6 +737,15 @@ public class ForwardModel {
                     es.powerUpsTaken[p.getPlayerID() - 10]++;
                 }
             }
+            else if (board[y][x] == TILETYPE.REMOTEBOMB) {
+                p.setRemote();
+                if(trueModel && LOGGING_STATISTICS) {
+                    String eventString = tick + " | [" + (p.getPlayerID() - 10) + "] picked up REMOTE BOMB at ("
+                            +  x + ", " + y + ")\n";
+                    es.events.add(eventString);
+                    es.powerUpsTaken[p.getPlayerID() - 10]++;
+                }
+            }
         }
     }
 
@@ -735,7 +762,7 @@ public class ForwardModel {
      * Generates the game board given an intBoard that will be translated.
      */
     private void generateBoard(int[][] intBoard, long seed) {
-        int[][] intPowerups = LevelGenerator.makeItems(intBoard, Types.BOARD_NUM_ITEMS, seed);
+        int[][] intPowerups = LevelGenerator.makeItems(intBoard, Types.ITEM_BREAK_PROBABILITY, seed);
         translate(intBoard, true);
         translate(intPowerups, false);
     }
@@ -756,13 +783,13 @@ public class ForwardModel {
                 for (int j = 0; j < intBoard[i].length; j++) {
                     Types.TILETYPE type = utils.Types.TILETYPE.values()[intBoard[i][j]];
                     if (type == Types.TILETYPE.BOMB) {
-                        addBomb(j, i, DEFAULT_BOMB_BLAST, BOMB_LIFE, -1, true);
+                        addBomb(j, i, DEFAULT_BOMB_BLAST, BOMB_LIFE, -1, true, false);
                     } else if (type == Types.TILETYPE.FLAMES) {
                         addFlame(j, i, FLAME_LIFE);
                     } else if (Types.TILETYPE.getAgentTypes().contains(type)) {
                         int idx = type.getKey() - 10;
                         addAgent(j, i, idx);
-                    } else if (Types.TILETYPE.getPowerUpTypes().contains(type)) {
+                    } else if (Types.TILETYPE.getPowerUpTypes().keySet().contains(type)) {
                         addPowerUp(j, i, type, true);
                     } else {
                         // All other objects are simply added: walls, passage, fog
@@ -784,8 +811,8 @@ public class ForwardModel {
 
     // add* methods can be used by agents to insert things into the model
 
-    void addBomb(int x, int y, int blastStrength, int bombLife, int playerIdx, boolean addToBoard) {
-        Bomb bomb = new Bomb(blastStrength, bombLife, playerIdx);
+    void addBomb(int x, int y, int blastStrength, int bombLife, int playerIdx, boolean addToBoard, boolean remote) {
+        Bomb bomb = new Bomb(blastStrength, bombLife, playerIdx, remote);
         bomb.setPosition(new Vector2d(x, y));
         setDesiredCoordinate(bomb, new Vector2d(x, y), board);
         bombs.add(bomb);
@@ -808,7 +835,7 @@ public class ForwardModel {
         if (visible) targetArray = board;
         else targetArray = powerups;
 
-        if (type == Types.TILETYPE.EXTRABOMB || type == Types.TILETYPE.INCRRANGE || type == Types.TILETYPE.KICK) {
+        if (Types.TILETYPE.getPowerUpTypes().keySet().contains((type))) {
             addObject(x, y, type, targetArray);
         }
     }
@@ -861,7 +888,7 @@ public class ForwardModel {
                 GameObject ob = agents[type.getKey() - 10];
                 ((Avatar)ob).setWinner(RESULT.LOSS);
                 aliveAgents.remove(ob);
-            } else if (TILETYPE.getPowerUpTypes().contains(type)) {
+            } else if (TILETYPE.getPowerUpTypes().keySet().contains(type)) {
                 powerups[y][x] = null;
             }
         }
@@ -983,14 +1010,17 @@ public class ForwardModel {
 
         // Agents and aliveAgents do not get reduced. But their position is removed if we don't know where they are.
         copy.agents = deepCopy(agents);
-        for (GameObject a: copy.agents) {
+        for (int i = 0; i < copy.agents.length; i++) {
+            Avatar a = (Avatar)agents[i];
             if (range != -1 && a.getPosition() != null && a.getPosition().custom_dist(avatarPosition) > range) {
                 // This agent's position is not observed
                 a.setPosition(null);
                 a.setDesiredCoordinate(null);
             }
             // If not player observing, reset properties to default
-            ((Avatar)a).reset();
+            if(i != playerIdx) {
+                //((Avatar)a).reset();
+            }
         }
 
         // Reduce power-ups and board arrays
@@ -1051,4 +1081,10 @@ public class ForwardModel {
             return false;
         return true;
     }
+
+    public int getBombsPlanted(int playerID) {
+        Avatar agent = (Avatar) agents[playerID];
+        return agent.getMaxAmmo() - agent.getAmmo();
+    }
+
 }

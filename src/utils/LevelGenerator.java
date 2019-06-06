@@ -47,42 +47,36 @@ public class LevelGenerator {
     /**
      * Place pick-ups on the board's wooden boxes
      * @param board - the board to check for wood wall placements
-     * @param num_items - how many powerups should be spawned
+     * @param item_probability - likelyhood of a wooden box containing a powerup
      * @param seed - seed for random generator of powerups
      */
-    public static int[][] makeItems(int[][] board, int num_items, long seed) {
+    public static int[][] makeItems(int[][] board, double item_probability, long seed) {
 
         Random random = new Random(seed);                           //Items are set at random
         int[][] items = new int[board.length][board[0].length];     //Items will be here.
 
         //All items to place.
-        Types.TILETYPE[] powerUpTypes = Types.TILETYPE.getPowerUpTypes().toArray(new Types.TILETYPE[0]);
+        Types.TILETYPE[] powerUpTypes = Types.TILETYPE.getPowerUpTypes().keySet().toArray(new Types.TILETYPE[0]);
+        int[] distribution = Types.TILETYPE.getPowerUpTypes().values().stream().mapToInt(x->x).toArray();
+        int total = Arrays.stream(distribution).sum();
 
-        //Count how many wood boxes we have to put items in
-        int numberOfWood = 0;
-        for (int[] ints : board) {
-            for (int anInt : ints) {
-                if (anInt == Types.TILETYPE.WOOD.getKey())
-                    numberOfWood++;
+        for(int x = 0; x < board.length; x++) {
+          for(int y = 0; y < board[0].length; y++) {
+            if(board[x][y] != Types.TILETYPE.WOOD.getKey()){
+              continue;
             }
-        }
 
-        //we can't put more items than the number of wooden boxes we have.
-        num_items = Math.min(numberOfWood, num_items);
-
-        //buffer to make sure we don't use the same wooden box twice.
-        ArrayList<Vector2d> item_positions = new ArrayList<>();
-
-        while (num_items > 0) {
-            int row = random.nextInt(board.length);
-            int col = random.nextInt(board[0].length);
-            if (board[row][col] != Types.TILETYPE.WOOD.getKey()) continue;
-            if (item_positions.contains(new Vector2d(col, row))) continue;
-
-            //Here we have a position (row,col) where an item can be placed. Random power-up spawns here.
-            item_positions.add(new Vector2d(col, row));
-            items[row][col] = powerUpTypes[random.nextInt(powerUpTypes.length)].getKey();
-            num_items--;
+            if(random.nextDouble() <= item_probability) {
+              int select = random.nextInt(total);
+              for(int i = 0; i < distribution.length; i++) {
+                if(select < distribution[i]) {
+                  items[x][y] = powerUpTypes[i].getKey();
+                  break;
+                }
+                select -= distribution[i];
+              }
+            }
+          }
         }
         return items;
     }

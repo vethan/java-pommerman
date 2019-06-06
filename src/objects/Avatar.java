@@ -11,7 +11,10 @@ import static utils.Types.*;
 public class Avatar extends GameObject {
     private int playerID;
     private boolean canKick = DEFAULT_BOMB_KICK;
+    private boolean remoteBomb = DEFAULT_REMOTE_BOMB;
+
     private int ammo = DEFAULT_BOMB_AMMO;
+
     private int blastStrength = DEFAULT_BOMB_BLAST;
     private int visionRange = DEFAULT_VISION_RANGE;
     private Types.RESULT winner = Types.RESULT.INCOMPLETE;
@@ -20,6 +23,7 @@ public class Avatar extends GameObject {
     private Types.TILETYPE[] teammates;
 
     private int team; // Only relevant in non-FFA games
+    private int maxAmmo = DEFAULT_BOMB_AMMO;
 
     public Avatar(int pId, Types.GAME_MODE gameMode) {
         super(Types.TILETYPE.values()[pId]);
@@ -39,7 +43,7 @@ public class Avatar extends GameObject {
         super.position = new Vector2d(x, y);
         playerID = pId;
         this.canKick = canKick;
-        this.ammo = ammo;
+        this.ammo = this.maxAmmo = ammo;
         this.blastStrength = blastStrength;
         if(gameMode != null) {
             // Setup team, enemies and teammates
@@ -51,7 +55,8 @@ public class Avatar extends GameObject {
 
     public void reset() {
         canKick = DEFAULT_BOMB_KICK;
-        ammo = DEFAULT_BOMB_AMMO;
+        remoteBomb = DEFAULT_REMOTE_BOMB;
+        ammo = maxAmmo = DEFAULT_BOMB_AMMO;
         blastStrength = DEFAULT_BOMB_BLAST;
     }
 
@@ -59,6 +64,7 @@ public class Avatar extends GameObject {
     public GameObject copy() {
         Avatar copy = new Avatar(playerID, null);
         copy.canKick = canKick;
+        copy.remoteBomb = remoteBomb;
         copy.ammo = ammo;
         copy.blastStrength = blastStrength;
         copy.life = life;
@@ -69,7 +75,7 @@ public class Avatar extends GameObject {
         if (position != null) {
             copy.position = position.copy();
         }
-
+copy.maxAmmo = maxAmmo;
         copy.team = team;
         copy.enemies = enemies.clone();
         copy.teammates = teammates.clone();
@@ -87,6 +93,10 @@ public class Avatar extends GameObject {
 
     public boolean canKick() {
         return canKick;
+    }
+
+    public boolean hasRemoteBomb() {
+        return remoteBomb;
     }
 
     public int getPlayerID() {
@@ -109,6 +119,14 @@ public class Avatar extends GameObject {
         this.ammo++;
     }
 
+    public void addMaxAmmo() {
+        this.maxAmmo++;
+    }
+
+    public int getMaxAmmo() {
+        return this.maxAmmo;
+    }
+
     public void reduceAmmo() {
         this.ammo--;
     }
@@ -120,6 +138,11 @@ public class Avatar extends GameObject {
     public void setCanKick() {
         this.canKick = true;
     }
+
+    public void setRemote() {
+        this.remoteBomb = true;
+    }
+
 
     public void setWinner(Types.RESULT winner) {
         this.winner = winner;
@@ -174,4 +197,6 @@ public class Avatar extends GameObject {
             return false;
         return true;
     }
+
+
 }

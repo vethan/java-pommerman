@@ -20,7 +20,7 @@ public class GameObject {
     private utils.Types.TILETYPE type = Types.TILETYPE.PASSAGE;
     int id;
 
-    private Image img;
+    protected Image img;
 
 
     public GameObject(utils.Types.TILETYPE type, int x, int y){
