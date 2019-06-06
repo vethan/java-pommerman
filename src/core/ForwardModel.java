@@ -4,7 +4,6 @@ import objects.Avatar;
 import objects.Bomb;
 import objects.Flame;
 import objects.GameObject;
-import sun.management.Agent;
 import utils.EventsStatistics;
 import utils.LevelGenerator;
 import utils.Types;
