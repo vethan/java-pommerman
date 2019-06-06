@@ -727,7 +727,7 @@ public class ForwardModel {
      * It uses Types.BOARD_* to decide number of rigid blocks, wood, items, etc.
      */
     private void generateBoard(long seed) {
-        int[][] intBoard = LevelGenerator.makeBoard(seed, size, Types.BOARD_NUM_RIGID, Types.BOARD_NUM_WOOD, agents);
+        int[][] intBoard = LevelGenerator.makeBoard(seed, size,  Types.WOOD_PROBABILITY, agents);
         generateBoard(intBoard, seed);
     }
 
