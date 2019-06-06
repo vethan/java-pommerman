@@ -68,6 +68,8 @@ public class SingleTreeNode
         }
         else
             m_depth = 0;
+
+        //System.out.println("Opponent model: " + opponentModel.toString());
     }
 
     /**
