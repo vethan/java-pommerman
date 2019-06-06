@@ -312,8 +312,8 @@ public class GameState {
 
     /* ----- Methods to insert or remove observations into the game model ----- */
 
-    public void addBomb(int x, int y, int blastStrength, int bombLife, int playerIdx, boolean addToBoard) {
-        model.addBomb(x, y, blastStrength, bombLife, playerIdx, addToBoard);
+    public void addBomb(int x, int y, int blastStrength, int bombLife, int playerIdx, boolean addToBoard, boolean remote) {
+        model.addBomb(x, y, blastStrength, bombLife, playerIdx, addToBoard, remote);
     }
 
     public void addFlame(int x, int y, int life) {
@@ -479,6 +479,18 @@ public class GameState {
         Gson gson = builder.create();
 
         return gson.toJson(serialisableGameState);
+    }
+
+    public int bombsPlanted() {
+        return model.getBombsPlanted(avatar.getPlayerID()-10);
+    }
+
+    public boolean hasRemote() {
+        return avatar.hasRemoteBomb();
+    }
+
+    public boolean canTriggerBomb() {
+        return model.getBombsPlanted(avatar.getPlayerID()-10) > 0;
     }
 
     /**

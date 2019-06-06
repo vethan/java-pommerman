@@ -4,6 +4,7 @@ import utils.Types;
 import utils.Utils;
 import utils.Vector2d;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 import static utils.Types.*;
@@ -13,30 +14,56 @@ public class Bomb extends GameObject {
     private int blastStrength;
     private Vector2d velocity;
     private int playerIdx;
+    private boolean remote;
 
-    public Bomb(int blastStrength, int life, int pIdx) {
+    public  boolean isRemote() {
+        return remote;
+    }
+    public Bomb(int blastStrength, int life, int pIdx, boolean remote) {
         super(Types.TILETYPE.BOMB);
-        this.life = life;
+        this.remote = remote;
+        this.life = remote ? BOMB_LIFE+1 : life ;
         this.blastStrength = blastStrength;
         this.playerIdx = pIdx;
         velocity = new Vector2d();
+
+
     }
 
     public Bomb() {
         super(Types.TILETYPE.BOMB);
         blastStrength = DEFAULT_BOMB_BLAST;
-        life = BOMB_LIFE;
+    }
+
+
+    public boolean canTrigger() {
+        return remote && life - BOMB_LIFE > 2;
+    }
+
+
+    public void triggerRemotely() {
+        if(canTrigger())
+            life = 0;
     }
 
     @Override
+    public Image getImage() { return remote ? TILETYPE.REMOTEBOMBGO.getImage() : Types.TILETYPE.BOMB.getImage();}
+
+
+    @Override
     public void tick() {
-        life--;
+        if(!remote) {
+            life--;
+        } else if(remote && life > 0)
+        {
+            life++;
+        }
         desiredCoordinate = position.add(velocity);
     }
 
     @Override
     public GameObject copy() {
-        Bomb copy = new Bomb(blastStrength, life, playerIdx);
+        Bomb copy = new Bomb(blastStrength, life, playerIdx, remote);
         copy.desiredCoordinate = desiredCoordinate.copy();
         copy.position = position.copy();
         copy.velocity = velocity.copy();

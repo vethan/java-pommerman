@@ -5,6 +5,7 @@ import core.gameConfig.OriginalGameConfig;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class Types {
@@ -16,6 +17,8 @@ public class Types {
     public static int DEFAULT_BOMB_BLAST = 2;       //Default bombs create flames with this range.
     public static int DEFAULT_BOMB_AMMO = 1;        //Default number of simultaneous bombs an agent can put.
     public static boolean DEFAULT_BOMB_KICK = false;//Can agents kick bomb by default?
+    public static boolean DEFAULT_REMOTE_BOMB = false;//Can agents kick bomb by default?
+
     public static int DEFAULT_VISION_RANGE = -1;    //-1 for full observability, >1 for PO.
 
     //Game configuration to use in the game, which determines victory conditions.
@@ -24,7 +27,7 @@ public class Types {
     //Board configuration constants.
     public static int BOARD_SIZE = 11;              //Size of the board (n x n).
     public static double WOOD_PROBABILITY = 0.8;          //Number of wooden (destroyable) blocks for the level.
-    public static int BOARD_NUM_ITEMS = 10;         //Number of items to put in level.
+    public static double ITEM_BREAK_PROBABILITY = 0.4;         //Number of items to put in level.
     public static int MAX_INACCESIBLE_TILES = 4;    //Number of inaccessible parts of the level allowed.
     public static int CORNER_DISTANCE = 0;          //Distance to the corner, in tiles, of the starting agent position.
     public static int BREATHING_SPACE = 2;          //Breathing space, L shaped tile section free at start around agent.
@@ -44,7 +47,7 @@ public class Types {
     public static boolean LOGGING_STATISTICS = false;
 
     public final static int NUM_PLAYERS = 4;  //Changing this is NOT going to work (Forward Model assumes 4 players).
-    public static int NUM_ACTIONS = 6;        //Changing this is NOT going to work either.
+    public static int NUM_ACTIONS = 7;        //Changing this is NOT going to work either.
 
     public static IGameConfig getGameConfig() {return gameConfig;}
 
@@ -70,7 +73,9 @@ public class Types {
         AGENT0(10),
         AGENT1(11),
         AGENT2(12),
-        AGENT3(13);
+        AGENT3(13),
+        REMOTEBOMB(14),
+      REMOTEBOMBGO(15);
 
         private int key;
         TILETYPE(int numVal) {  this.key = numVal;  }
@@ -91,6 +96,9 @@ public class Types {
             else if (key == FOG.key) return ImageIO.GetInstance().getImage("img/fog.png");
             else if (key == EXTRABOMB.key) return ImageIO.GetInstance().getImage("img/extrabomb.png");
             else if (key == INCRRANGE.key) return ImageIO.GetInstance().getImage("img/incrrange.png");
+            else if (key == REMOTEBOMB.key) return ImageIO.GetInstance().getImage("img/remoteBombpower.png");
+            else if (key == REMOTEBOMBGO.key) return ImageIO.GetInstance().getImage("img/remotebomb.png");
+
             else if (key == KICK.key) return ImageIO.GetInstance().getImage("img/kick.png");
             else if (key == AGENTDUMMY.key) return ImageIO.GetInstance().getImage("img/skull1.png");
             else if (key == AGENT0.key) return ImageIO.GetInstance().getImage("img/agent0.png");
@@ -117,13 +125,15 @@ public class Types {
          * Returns all power up types.
          * @return all power up types.
          */
-        public static HashSet<TILETYPE> getPowerUpTypes() {
-            HashSet<TILETYPE> types = new HashSet<>();
-            types.add(EXTRABOMB);
-            types.add(INCRRANGE);
-            types.add(KICK);
+        public static HashMap<TILETYPE,Integer> getPowerUpTypes() {
+          HashMap<TILETYPE,Integer> types = new HashMap<>();
+            types.put(EXTRABOMB,7);
+            types.put(INCRRANGE,5);
+            types.put(KICK,2);
+            types.put(REMOTEBOMB,2);
             return types;
         }
+
 
         /**
          * Checks if two boards (arrays of tiletypes) are the same
@@ -195,7 +205,8 @@ public class Types {
         ACTION_DOWN(2),
         ACTION_LEFT(3),
         ACTION_RIGHT(4),
-        ACTION_BOMB(5);
+        ACTION_BOMB(5),
+        ACTION_ACTIVATE(6);
 
         private int key;
         ACTIONS(int numVal) {  this.key = numVal; }
@@ -214,6 +225,7 @@ public class Types {
             allActions.add(ACTION_LEFT);
             allActions.add(ACTION_RIGHT);
             allActions.add(ACTION_BOMB);
+            allActions.add(ACTION_ACTIVATE);
             return allActions;
         }
 
