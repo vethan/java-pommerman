@@ -1,6 +1,7 @@
 package players.mcts;
 
 import core.GameState;
+import players.SimplePlayer;
 import players.optimisers.ParameterizedPlayer;
 import players.Player;
 import utils.ElapsedCpuTimer;
@@ -17,6 +18,11 @@ public class MCTSPlayer extends ParameterizedPlayer {
     private Random m_rnd;
 
     /**
+     * Opponent model for during rollout
+     * */
+    private Player opponentModel;
+
+    /**
      * All actions available.
      */
     public Types.ACTIONS[] actions;
@@ -27,7 +33,11 @@ public class MCTSPlayer extends ParameterizedPlayer {
     public MCTSParams params;
 
     public MCTSPlayer(long seed, int id) {
-        this(seed, id, null);
+        this(seed, id, null, new SimplePlayer(seed, id));
+    }
+
+    public MCTSPlayer(long seed, int id, MCTSParams params) {
+        this(seed, id, params, new SimplePlayer(seed, id));
     }
 
     /**
@@ -36,9 +46,10 @@ public class MCTSPlayer extends ParameterizedPlayer {
      * @param id ID of this player in the game.
      * @param params Parameters for MCTS.
      */
-    public MCTSPlayer(long seed, int id, MCTSParams params) {
+    public MCTSPlayer(long seed, int id, MCTSParams params, Player opponentModel) {
         super(seed, id, params);
         reset(seed, id);
+        this.opponentModel = opponentModel;
 
         ArrayList<Types.ACTIONS> actionsList = Types.ACTIONS.all();
         actions = new Types.ACTIONS[actionsList.size()];
@@ -81,7 +92,7 @@ public class MCTSPlayer extends ParameterizedPlayer {
         int num_actions = actions.length;
 
         // Root of the tree
-        SingleTreeNode m_root = new SingleTreeNode(params, m_rnd, num_actions, actions);
+        SingleTreeNode m_root = new SingleTreeNode(params, m_rnd, num_actions, actions, opponentModel);
         m_root.setRootGameState(gs);
 
         //Determine the action using MCTS...
@@ -96,6 +107,6 @@ public class MCTSPlayer extends ParameterizedPlayer {
 
     @Override
     public Player copy() {
-        return new MCTSPlayer(seed, playerID, params);
+        return new MCTSPlayer(seed, playerID, params, opponentModel);
     }
 }

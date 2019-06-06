@@ -1,6 +1,7 @@
 package players.mcts;
 
 import core.GameState;
+import players.Player;
 import players.heuristics.AdvancedHeuristic;
 import players.heuristics.CustomHeuristic;
 import players.heuristics.StateHeuristic;
@@ -39,17 +40,18 @@ public class SingleTreeNode
     private int fmCallsCount;                   //Keeps a count on the number of usages of the forward model (used for termination condition)
     private Random m_rnd;                       //Random object for random choosing. Same object to depend only on one seed
 
-
+    /** For simulating opponent during rollout. Please don't let this be a predictor **/
+    private Player opponentModel;
 
 
     //Constructor of the MCTS node class.
-    SingleTreeNode(MCTSParams p, Random rnd, int num_actions, Types.ACTIONS[] actions) {
-        this(p, null, -1, rnd, num_actions, actions, 0, null);
+    SingleTreeNode(MCTSParams p, Random rnd, int num_actions, Types.ACTIONS[] actions, Player opponentModel) {
+        this(p, null, -1, rnd, num_actions, actions, 0, null, opponentModel);
     }
 
     //Constructor of the MCTS node class.
     private SingleTreeNode(MCTSParams p, SingleTreeNode parent, int childIdx, Random rnd, int num_actions,
-                           Types.ACTIONS[] actions, int fmCallsCount, StateHeuristic sh) {
+                           Types.ACTIONS[] actions, int fmCallsCount, StateHeuristic sh, Player opponentModel) {
         this.params = p;
         this.fmCallsCount = fmCallsCount;
         this.parent = parent;
@@ -59,6 +61,7 @@ public class SingleTreeNode
         children = new SingleTreeNode[num_actions];
         totValue = 0.0;
         this.childIdx = childIdx;
+        this.opponentModel = opponentModel;
         if(parent != null) {
             m_depth = parent.m_depth + 1;
             this.rootStateHeuristic = sh;
@@ -193,7 +196,7 @@ public class SingleTreeNode
         //state is now the next state, of the expanded node. Create a node with such state
         // and add it to the tree, as child of 'this'
         SingleTreeNode tn = new SingleTreeNode(params,this,bestAction,this.m_rnd,num_actions,
-                actions, fmCallsCount, rootStateHeuristic);
+                actions, fmCallsCount, rootStateHeuristic, opponentModel);
         children[bestAction] = tn;
 
         //Get the expanded node back.
@@ -224,9 +227,9 @@ public class SingleTreeNode
                 // This is another player. We can have different models:
 
                 // Random model
-                int actionIdx = m_rnd.nextInt(gs.nActions());           // Action index at random
-                actionsAll[i] = Types.ACTIONS.all().get(actionIdx);     // Pick the action from the array of actions
-
+                //int actionIdx = m_rnd.nextInt(gs.nActions());           // Action index at random
+                //actionsAll[i] = Types.ACTIONS.all().get(actionIdx);     // Pick the action from the array of actions
+                actionsAll[i] = opponentModel.act(gs);
 //                actionsAll[i] = Types.ACTIONS.ACTION_STOP;            //This is to assume the other players would do nothing.
             }
         }

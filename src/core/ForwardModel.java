@@ -982,7 +982,7 @@ public class ForwardModel {
         copy.bombs = new ArrayList<>();
 
         // Agents and aliveAgents do not get reduced. But their position is removed if we don't know where they are.
-        //copy.agents = deepCopy(agents); // BUG WORKAROUND
+        copy.agents = deepCopy(agents);
         for (GameObject a: copy.agents) {
             if (range != -1 && a.getPosition() != null && a.getPosition().custom_dist(avatarPosition) > range) {
                 // This agent's position is not observed
