@@ -10,6 +10,7 @@ import utils.Types;
 import utils.Vector2d;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static utils.Types.*;
 import static utils.Utils.*;
@@ -50,6 +51,7 @@ public class ForwardModel {
     // Game tick counter as in GameState, for logging purposes (only valid for true model of the game)
     private int tick;
 
+    private  Random random;
     // Event statistics
     private EventsStatistics es;
     private boolean[] isAgentStuck;
@@ -62,6 +64,7 @@ public class ForwardModel {
     ForwardModel(int size, Types.GAME_MODE game_mode) {
         this.size = size;
         this.game_mode = game_mode;
+        this.random = new Random();
     }
 
     /**
@@ -154,7 +157,7 @@ public class ForwardModel {
     void init(long seed, int size, Types.GAME_MODE gameMode, int[][] intBoard, int[] alive) {
         flames = new ArrayList<>();
         bombs = new ArrayList<>();
-
+        this.random = new Random(seed);
         boolean noBoard = false;
         if (intBoard == null) {
             noBoard = true;
@@ -224,6 +227,44 @@ public class ForwardModel {
         copy.trueModel = false;  // This is a copy, not the true model
         reduce(copy, playerIdx);
         return copy;
+    }
+
+    void spreadAgentBuffs(ArrayList<GameObject> deadAgentsThisTick) {
+        List<TILETYPE> powerupsToSpread = deadAgentsThisTick.stream().map(a -> (Avatar) a).flatMap(agent -> {
+                    ArrayList<TILETYPE> tt = new ArrayList<>();
+                    if (agent.canKick())
+                        tt.add(TILETYPE.KICK);
+
+                    if (agent.hasRemoteBomb())
+                        tt.add(TILETYPE.REMOTEBOMB);
+
+                    for (int i = 1; i < agent.getMaxAmmo(); i++)
+                        tt.add(TILETYPE.EXTRABOMB);
+
+                    for (int i = 1; i < agent.getBlastStrength(); i++)
+                        tt.add(TILETYPE.INCRRANGE);
+
+                    return tt.stream();
+                }
+
+        ).collect(Collectors.toList());
+
+        List<Vector2d> availablePositions = new ArrayList<>();
+        for(int x = 0; x < board.length;x++)
+            for (int y =0; y < board[0].length; y++) {
+                if(board[x][y] == TILETYPE.PASSAGE) {
+                    availablePositions.add(new Vector2d(x,y));
+                }
+            }
+
+            while (availablePositions.size() > 0 && powerupsToSpread.size() > 0) {
+                int posIndex = this.random.nextInt(availablePositions.size());
+                Vector2d pos = availablePositions.get(posIndex);
+                availablePositions.remove(posIndex);
+                board[pos.x][pos.y] = powerupsToSpread.get(0);
+                powerupsToSpread.remove(0);
+            }
+
     }
 
     /**
@@ -346,6 +387,7 @@ public class ForwardModel {
 
         // 14. Check for terminated agents
         if(deadAgentsThisTick.size() > 0) {
+            spreadAgentBuffs(deadAgentsThisTick);
             Types.getGameConfig().processDeadAgents(agents, aliveAgents, deadAgentsThisTick, game_mode);
         }
 
