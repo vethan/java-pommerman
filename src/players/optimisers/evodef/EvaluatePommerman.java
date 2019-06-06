@@ -97,7 +97,7 @@ public class EvaluatePommerman implements NoisySolutionEvaluator, SearchSpace, F
 
             // Create opponents
             for (int j = 0; j < NUM_PLAYERS; j++) {
-                if (j != i) {
+                if (j != i) { // TODO: Possibly change this, as NTBEA is using SimplePlayers
                     players[j] = new SimplePlayer(seed, Types.TILETYPE.AGENT0.getKey() + j);
                 }
             }

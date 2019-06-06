@@ -88,6 +88,7 @@ public class CustomHeuristic extends StateHeuristic {
             int diffWoods = - (futureState.nWoods - this.nWoods);
             int diffCanKick = futureState.canKick ? 1 : 0;
             int diffBlastStrength = futureState.blastStrength - this.blastStrength;
+            // TODO: Does not take ammo into account
 
             return (diffEnemies / 3.0) * FACTOR_ENEMY + diffTeammates * FACTOR_TEAM + (diffWoods / maxWoods) * FACTOR_WOODS
                     + diffCanKick * FACTOR_CANKCIK + (diffBlastStrength / maxBlastStrength) * FACTOR_BLAST;

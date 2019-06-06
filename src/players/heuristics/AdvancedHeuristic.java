@@ -222,12 +222,83 @@ public class AdvancedHeuristic extends StateHeuristic {
             return this.directionsInRangeOfBomb;
         }
 
+
         private Integer getNumberOfDirectionsInRangeOfBomb(){
             if(this.n_directionsInRangeOfBomb == null){
                 this.n_directionsInRangeOfBomb = getDirectionsInRangeOfBomb().size();
             }
             return this.n_directionsInRangeOfBomb;
         }
+
+        /// Dan's utility functions. Should possibly do this in another file  ----
+        private boolean positionInBounds(int xSize, int ySize, Vector2d position) {
+            if(xSize <= 0 || ySize <= 0)
+                return false;
+
+            return position.x >= 0
+                    && position.y >= 0
+                    && position.x < xSize
+                    && position.y < ySize;
+        }
+
+        private boolean tileBlocked(Types.TILETYPE[][] grid, HashSet<Types.TILETYPE> collisions, Vector2d position) {
+            switch (grid[position.y][position.x]) {11
+                case AGENT0:
+                case AGENT1:
+                case AGENT2:
+                case AGENT3:
+                case AGENTDUMMY:
+                    return true;
+
+                case RIGID:
+                case WOOD:
+                case BOMB:
+                case FLAMES: // The bomb will definitely  do some explodin' if it hits a flame
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        /**
+         * Where would a thing end up if it got kicked in X direction. You stop before moving into a tile you'd collide with
+         * @param startPosition The start position of the simulation
+         * @param kickDirection The direction in which we're simulating a kick
+         * @param collisions The types of tiles you're considered to collide with
+         * @return The x and y of the destination after being kicked
+         */
+        private Vector2d simulateKick(Vector2d startPosition, Types.DIRECTIONS kickDirection, HashSet<Types.TILETYPE> collisions) {
+            if(kickDirection == Types.DIRECTIONS.NONE)
+                return startPosition;
+
+            // Create a copy, as I think if we edited it otherwise, the effects would spread
+            Vector2d bombPosition = startPosition.copy();
+            int boardWidth = board[0].length;
+            int boardHeight = board.length;
+            Vector2d kickVector = kickDirection.toVec();
+            Vector2d nextPosition = bombPosition.add(kickVector);
+            // Keep going in a direction, while we're not blocked or outside the grid
+            while(positionInBounds(boardWidth, boardHeight, nextPosition)
+                && !tileBlocked(board, collisions, nextPosition)) {
+                bombPosition = nextPosition;
+                nextPosition.add(kickVector);
+            }
+            // We've been blocked or we've hit an edge
+            return bombPosition;
+        }
+
+        private int bombsKickableToMe(Vector2d myPosition, ArrayList<Bomb> bombs) {
+            int result = 0;
+
+            for(Bomb bomb : bombs) {
+                Vector2d bombPos = bomb.getPosition();
+                // TODO: Finish off bomb heuristic additions
+            }
+            return -1; // Remove line when implement
+        }
+
+        // ----------------
 
         private HashMap<Types.DIRECTIONS, Integer> computeDirectionsInRangeOfBomb(Vector2d myPosition, ArrayList<Bomb> bombs,
                                                                                   HashMap<Vector2d, Integer> dist) {
@@ -287,6 +358,7 @@ public class AdvancedHeuristic extends StateHeuristic {
             return this.n_safeDirections;
         }
 
+        // TODO: Take into account if a bomb may be kicked in our face
         private ArrayList<Types.DIRECTIONS> computeSafeDirections(Types.TILETYPE[][] board, Vector2d myPosition,
                                                                   HashMap<Types.DIRECTIONS, Integer> unsafeDirections,
                                                                   ArrayList<Bomb> bombs, ArrayList<GameObject> enemies) {

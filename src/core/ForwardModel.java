@@ -982,7 +982,7 @@ public class ForwardModel {
         copy.bombs = new ArrayList<>();
 
         // Agents and aliveAgents do not get reduced. But their position is removed if we don't know where they are.
-        copy.agents = deepCopy(agents);
+        //copy.agents = deepCopy(agents); // BUG WORKAROUND
         for (GameObject a: copy.agents) {
             if (range != -1 && a.getPosition() != null && a.getPosition().custom_dist(avatarPosition) > range) {
                 // This agent's position is not observed
@@ -990,7 +990,7 @@ public class ForwardModel {
                 a.setDesiredCoordinate(null);
             }
             // If not player observing, reset properties to default
-            ((Avatar)a).reset();
+            // ((Avatar)a).reset(); // BUG WORKAROUND
         }
 
         // Reduce power-ups and board arrays
