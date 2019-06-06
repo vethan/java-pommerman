@@ -41,6 +41,15 @@ public class Run {
         long seeds[] = new long[] {93988, 19067, 64416, 83884, 55636, 27599, 44350, 87872, 40815,
                 11772, 58367, 17546, 75375, 75772, 58237, 30464, 27180, 23643, 67054, 19508};
 
+        // Because only 20 seeds? HAHAHA
+        long danSeeds[] = new long[] {93988, 19067, 64416, 83884, 55636, 27599, 44350, 87872, 40815,
+                11772, 58367, 17546, 75375, 75772, 58237, 30464, 27180, 23643, 67054, 19508,
+                // My additions
+                42, 69, 77777, 1337, 666, 58008, 913248, 123, 73429, 1239,
+                78678623, 912394, 783932929, 1239149134, 643517, 19823, 89543, 8245, 51123, 1,
+                12345, 67890, 9876, 54321, 13579, 943284, 7181819, 1929384, 43875894, 2
+        };
+
 
         int RHEA_CUSTOM_HEURISTIC = 0;
         int RHEA_ADVANCED_HEURISTIC = 1;
@@ -116,6 +125,10 @@ public class Run {
                         p = new MCTSPlayer(seed, playerID++, mctsParams);
                         playerStr[i-3] = "MCTS-ADVANCED";
                         break;
+                    case 8:
+                        p = new SimpleEvoAgent(seed, playerID++);
+                        playerStr[i-3] = "Simple-Evo-Agent";
+                        break;
                     default:
                         System.out.println("WARNING: Invalid agent ID: " + agentType );
                 }
@@ -130,7 +143,7 @@ public class Run {
                     gameIdStr+="-";
             }
 
-            Game game = new Game(seeds[0], boardSize, gMode, gameIdStr);
+            Game game = new Game(danSeeds[0], boardSize, gMode, gameIdStr);
 
             // Make sure we have exactly NUM_PLAYERS players
             assert players.size() == Types.NUM_PLAYERS;
@@ -146,7 +159,7 @@ public class Run {
             System.out.println("]");
 
 //            runGame(game, new KeyController(true), new KeyController(false));
-            runGames(game, seeds, N, false);
+            runGames(game, danSeeds, N, false);
 
         } catch(Exception e) {
             e.printStackTrace();
