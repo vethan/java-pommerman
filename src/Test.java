@@ -47,7 +47,7 @@ public class Test {
 //        players.add(new DoNothingPlayer(playerID++));
  //     players.add(new OSLAPlayer(seed, playerID++));
         players.add(new HumanPlayer(ki1, playerID++));
-        players.add(new MCTSPlayer(seed, playerID++, mctsParams));
+        players.add(new IGGIPlayer(seed, playerID++));
         players.add(new SimplePlayer(seed, playerID++));
         players.add(new SimpleEvoAgent(seed, playerID++));
 //     players.add(new SimplePlayer(seed, playerID++));

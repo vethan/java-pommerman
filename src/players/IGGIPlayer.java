@@ -3,7 +3,6 @@ package players;
 import players.mcts.MCTSParams;
 import players.mcts.MCTSPlayer;
 
-import static players.rhea.utils.Constants.CUSTOM_HEURISTIC;
 
 public class IGGIPlayer extends MCTSPlayer {
     // MCTS player with some finely tuned parameters ;)
@@ -14,6 +13,7 @@ public class IGGIPlayer extends MCTSPlayer {
     public IGGIPlayer(long seed, int id) {
         super(seed, id, new MCTSParams(), new RandomPlayer(seed, id));
         params.rollout_depth = 8;
-        params.heuristic_method = CUSTOM_HEURISTIC;
+        params.heuristic_method = params.CUSTOM_HEURISTIC;
+
     }
 }

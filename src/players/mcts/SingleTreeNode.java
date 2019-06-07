@@ -46,7 +46,8 @@ public class SingleTreeNode
 
     //Constructor of the MCTS node class.
     SingleTreeNode(MCTSParams p, Random rnd, int num_actions, Types.ACTIONS[] actions, Player opponentModel) {
-        this(p, null, -1, rnd, num_actions, actions, 0, null, opponentModel);
+        this(p, null, -1, rnd, num_actions, actions, 0,
+                null, opponentModel);
     }
 
     //Constructor of the MCTS node class.
