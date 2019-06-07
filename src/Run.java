@@ -94,12 +94,18 @@ public class Run {
                         playerStr[i-3] = "DoNothing";
                         break;
                     case 1:
-                        p = new RandomPlayer(seed, playerID++);
-                        playerStr[i-3] = "Random";
+//                        p = new RandomPlayer(seed, playerID++);
+//                        playerStr[i-3] = "Random";
+                        mctsParams.heuristic_method = mctsParams.ADVANCED_HEURISTIC;
+                        p = new MCTSPlayer(seed, playerID++, mctsParams, new SimpleEvoAgent(seed, playerID));
+                        playerStr[i-3] = "MCTS.Custom Heuristic.SimpleTweaked";
                         break;
                     case 2:
-                        p = new OSLAPlayer(seed, playerID++);
-                        playerStr[i-3] = "OSLA";
+//                        p = new OSLAPlayer(seed, playerID++);
+//                        playerStr[i-3] = "OSLA";
+                        mctsParams.heuristic_method = mctsParams.CUSTOM_HEURISTIC;
+                        p = new MCTSPlayer(seed, playerID++, mctsParams, new RHEAPlayer(seed, playerID));
+                        playerStr[i-3] = "MCTS.Custom Heuristic.RHEA";
                         break;
                     case 3:
                         p = new SimplePlayer(seed, playerID++);
